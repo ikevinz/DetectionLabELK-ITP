@@ -6,7 +6,7 @@ echo "deb [arch=amd64] https://packages.elastic.co/curator/5/debian stable main"
 apt-get -qq update
 apt-get -qq install elasticsearch -y # 1st install elasticseatch to get JDK
 export JAVA_HOME=/usr/share/elasticsearch/jdk && echo export JAVA_HOME=/usr/share/elasticsearch/jdk >>/etc/bash.bashrc
-apt-get -qq install kibana filebeat auditbeat elasticsearch-curator -y
+apt-get -qq install kibana filebeat auditbeat elasticsearch-curator logstash -y
 
 cat >/etc/cron.daily/curator <<EOF
 #!/bin/sh
@@ -56,6 +56,37 @@ EOF
 /bin/systemctl daemon-reload
 /bin/systemctl enable elasticsearch.service
 /bin/systemctl start elasticsearch.service
+
+#logstash
+#cat >/etc/logstash/logstash.yml <<EOF
+#  path.data: /var/lib/logstash
+#  path.logs: /var/log/logstash
+#  pipeline.ordered: auto
+#EOF
+
+sudo touch /etc/logstash/conf.d/logstash.conf
+cat > /etc/logstash/conf.d/logstash.conf <<EOF
+# Sample Logstash configuration for creating a simple
+# Beats -> Logstash -> Elasticsearch pipeline.
+
+input {
+  beats {
+    port => 5044
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://192.168.38.105:9200"]
+    index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+    #user => "elastic"
+    #password => "changeme"
+  }
+}
+EOF
+
+/bin/systemctl enable logstash.service
+/bin/systemctl start logstash.service
 
 #kibana
 touch /var/log/kibana.log
