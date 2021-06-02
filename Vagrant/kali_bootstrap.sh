@@ -15,6 +15,17 @@ install_filebeats() {
     echo "[$(date +%H:%M:%S)]: Filebeats Installed!"
 }
 
+install_keylog(){
+	apt-get install -y build-essential autotools-dev autoconf kbd
+	git clone https://github.com/kernc/logkeys.git
+	cd logkeys
+	./autogen.sh
+	cd build
+	../configure
+	make
+	make install
+}
+
 configure_rsyslog() {
     # Configure rsyslog
     echo "[$(date +%H:%M:%S)]: Configuring rsyslog for shell command collection..."
