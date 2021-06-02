@@ -29,6 +29,7 @@ apt_install_prerequisites() {
   apt-get -qq install -y apt-fast
   echo "[$(date +%H:%M:%S)]: Running apt-fast install..."
   apt-fast -qq install -y jq whois build-essential git unzip htop yq mysql-server redis-server python-pip
+  apt-get install -y ubuntu-desktop
 }
 
 modify_motd() {
