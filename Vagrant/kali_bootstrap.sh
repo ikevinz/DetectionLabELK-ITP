@@ -15,15 +15,29 @@ install_filebeats() {
     echo "[$(date +%H:%M:%S)]: Filebeats Installed!"
 }
 
+install zeek(){
+    #Install Dependencies
+    sudo apt update
+    sudo apt -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python3 python3-dev swig zlib1g-dev
+    
+    #Clone Repo
+    cd /opt
+    git clone --recursive https://github.com/zeek/zeek
+
+    #Install zeek
+    cd /opt/zeek
+    ./configure && make && sudo make install
+}
+
 install_keylog(){
-	apt-get install -y build-essential autotools-dev autoconf kbd
-	git clone https://github.com/kernc/logkeys.git
-	cd logkeys
-	./autogen.sh
-	cd build
-	../configure
-	make
-	make install
+    apt-get install -y build-essential autotools-dev autoconf kbd
+    git clone https://github.com/kernc/logkeys.git
+    cd logkeys
+    ./autogen.sh
+    cd build
+    ../configure
+    make
+    make install
 }
 
 configure_rsyslog() {
