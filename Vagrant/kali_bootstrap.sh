@@ -21,7 +21,7 @@ install_zeek(){
     sudo apt update
     sudo apt -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python3 python3-dev swig zlib1g-dev
     
-    #Clone Repo
+    #Clone Zeek Repo
     cd /opt
     git clone --recursive https://github.com/zeek/zeek
 
@@ -57,6 +57,143 @@ configure_rsyslog() {
     sudo touch /var/log/zsh.log
     
     echo "[$(date +%H:%M:%S)]: Rsyslog configuration complete."
+}
+
+configure_zeek() {
+    # Enable Zeek Filebeat Module
+    sudo filebeat modules enable zeek
+
+    # Config FIlebeat Zeek Module
+    sudo tee -a /etc/filebeat/modules.d/zeek.yml <<EOF
+    # Module: zeek
+    # Docs: /guide/en/beats/filebeat/7.6/filebeat-module-zeek.html
+
+    - module: zeek
+        capture_loss:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/capture_loss.log"]
+        connection:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/conn.log"]
+        dce_rpc:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/dce_rpc.log"]
+        dhcp:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/dhcp.log"]
+        dnp3:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/dnp3.log"]
+        dns:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/dns.log"]
+        dpd:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/dpd.log"]
+        files:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/files.log"]
+        ftp:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/ftp.log"]
+        http:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/http.log"]
+        intel:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/intel.log"]
+        irc:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/irc.log"]
+        kerberos:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/kerberos.log"]
+        modbus:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/modbus.log"]
+        mysql:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/mysql.log"]
+        notice:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/notice.log"]
+        ntlm:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/ntlm.log"]
+        ocsp:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/ocsp.log"]
+        pe:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/pe.log"]
+        radius:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/radius.log"]
+        rdp:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/rdp.log"]
+        rfb:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/rfb.log"]
+        #  signatures:
+        #    enabled: true
+        #    var.paths: ["/usr/local/zeek/logs/current/signatures.log"]
+        sip:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/sip.log"]
+        smb_cmd:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/smb_cmd.log"]
+        smb_files:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/smb_files.log"]
+        smb_mapping:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/smb_mapping.log"]
+        smtp:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/smtp.log"]
+        snmp:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/snmp.log"]
+        socks:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/socks.log"]
+        ssh:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/ssh.log"]
+        ssl:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/ssl.log"]
+        stats:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/stats.log"]
+        syslog:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/syslog.log"]
+        traceroute:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/traceroute.log"]
+        tunnel:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/tunnel.log"]
+        weird:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/weird.log"]
+        x509:
+            enabled: true
+            var.paths: ["/usr/local/zeek/logs/current/x509.log"]
+EOF
+
+    # Restart Filebeat
+    sudo systemctl restart filebeat
+
+    #Configure Zeek to output json
+    echo "@load policy/tuning/json-logs.zeek" | sudo tee -a /usr/local/zeek/share/zeek/site/local.zeek
+
+    # Restart Zeek and Filebeat
+    sudo /usr/local/zeek/bin/zeekctl deploy
+    sudo systemctl restart filebeat
 }
 
 configure_zsh() {
@@ -113,88 +250,6 @@ configure_filebeat() {
     
     output.logstash:
       hosts: ["192.168.38.105:5044"]
-
-    #- module: zeek
-      capture_loss:
-        #enabled: true
-      connection:
-        #enabled: true
-      dce_rpc:
-        #enabled: true
-      dhcp:
-        #enabled: true
-      dnp3:
-        #enabled: true
-      dns:
-        #enabled: true
-      dpd:
-        #enabled: true
-      files:
-        #enabled: true
-      ftp:
-        #enabled: true
-      http:
-        #enabled: true
-      intel:
-        #enabled: true
-      irc:
-        #enabled: true
-      kerberos:
-        #enabled: true
-      modbus:
-        #enabled: true
-      mysql:
-        #enabled: true
-      notice:
-        #enabled: true
-      ntlm:
-        #enabled: true
-      ocsp:
-        #enabled: true
-      pe:
-        #enabled: true
-      radius:
-        enabled: true
-      rdp:
-        enabled: true
-      rfb:
-        enabled: true
-      signature:
-        enabled: true
-      sip:
-        enabled: true
-      smb_cmd:
-        enabled: true
-      smb_files:
-        enabled: true
-      smb_mapping:
-        enabled: true
-      smtp:
-        enabled: true
-      snmp:
-        enabled: true
-      socks:
-        enabled: true
-      ssh:
-        enabled: true
-      ssl:
-        enabled: true
-      stats:
-        enabled: true
-      syslog:
-        enabled: true
-      traceroute:
-        enabled: true
-      tunnel:
-        enabled: true
-      weird:
-        enabled: true
-      x509:
-        enabled: true
-
-        # Set custom paths for the log files. If left empty,
-        # Filebeat will choose the paths depending on your OS.
-        #var.paths:
 EOF
 
     #Start services
@@ -224,6 +279,7 @@ main() {
     #configure_rsyslog
     #configure_zsh
     configure_filebeat
+    #configure_zeek
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     
     #Cleanup
