@@ -15,7 +15,8 @@ install_filebeats() {
     echo "[$(date +%H:%M:%S)]: Filebeats Installed!"
 }
 
-install zeek(){
+install_zeek(){
+    echo "[$(date +%H:%M:%S)]: Installing Zeek..."
     #Install Dependencies
     sudo apt update
     sudo apt -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python3 python3-dev swig zlib1g-dev
@@ -27,9 +28,12 @@ install zeek(){
     #Install zeek
     cd /opt/zeek
     ./configure && make && sudo make install
+
+    echo "[$(date +%H:%M:%S)]: Zeek Installed!"
 }
 
 install_keylog(){
+    echo "[$(date +%H:%M:%S)]: Installing Keylogger..."
     apt-get install -y build-essential autotools-dev autoconf kbd
     git clone https://github.com/kernc/logkeys.git
     cd logkeys
@@ -38,6 +42,7 @@ install_keylog(){
     ../configure
     make
     make install
+    echo "[$(date +%H:%M:%S)]: Keylogger Installed!..."
 }
 
 configure_rsyslog() {
@@ -210,6 +215,8 @@ main() {
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
     #install_filebeats
+    #install_keylog
+    #install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
     #Configuring
