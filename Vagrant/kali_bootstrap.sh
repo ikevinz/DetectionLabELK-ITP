@@ -51,7 +51,7 @@ configure_rsyslog() {
     
     # Creating rsyslog conf file
     cd /etc/rsyslog.d
-    echo "local6.*  /var/log/zsh.log" >> zsh.conf
+    echo "local6.*  /var/log/zsh.log" > zsh.conf
     
     # Create the file under /var/log
     sudo touch /var/log/zsh.log
@@ -269,22 +269,22 @@ main() {
     
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
-    #install_filebeats
-    #install_keylog
-    #install_zeek
+    install_filebeats
+    install_keylog
+    install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
     #Configuring
     echo "[$(date +%H:%M:%S)]: Configuring RED Machine..."
-    #configure_rsyslog
-    #configure_zsh
+    configure_rsyslog
+    configure_zsh
     configure_filebeat
-    #configure_zeek
+    configure_zeek
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     
     #Cleanup
     echo "[$(date +%H:%M:%S)]: Cleaning Up..."
-    #cleanup
+    cleanup
     echo "[$(date +%H:%M:%S)]: Clean up complete."
     
     echo "------------\tKALI SETUP COMPLETE\t------------"
