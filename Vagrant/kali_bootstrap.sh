@@ -198,8 +198,6 @@ EOF
     # Restart Zeek and Filebeat
     sudo /usr/local/zeek/bin/zeekctl deploy
     sudo systemctl restart filebeat
-
-    systemctl start zeek
 }
 
 configure_zsh() {
@@ -247,6 +245,7 @@ configure_filebeat() {
       enabled: true
       paths:
         - /var/log/zsh.log
+        - /usr/local/zeek/logs/current/*.log
     
     filebeat.config.modules:
       path: \${path.config}/modules.d/*.yml
