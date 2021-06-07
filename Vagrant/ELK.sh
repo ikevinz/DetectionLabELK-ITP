@@ -4,6 +4,7 @@ wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
 echo "deb [arch=amd64] https://packages.elastic.co/curator/5/debian stable main" | sudo tee -a /etc/apt/sources.list.d/curator-5.list
 apt-get -qq update
+apt-get -qq install default-jre
 apt-get -qq install elasticsearch -y # 1st install elasticseatch to get JDK
 export JAVA_HOME=/usr/share/elasticsearch/jdk && echo export JAVA_HOME=/usr/share/elasticsearch/jdk >>/etc/bash.bashrc
 apt-get -qq install kibana filebeat auditbeat elasticsearch-curator logstash -y
