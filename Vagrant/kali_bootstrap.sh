@@ -65,6 +65,8 @@ configure_zeek() {
     # Enable Zeek Filebeat Module
     sudo filebeat modules enable zeek
 
+    export PATH=$PATH:/usr/local/zeek/bin
+
     # Config FIlebeat Zeek Module
     sudo tee -a /etc/filebeat/modules.d/zeek.yml <<EOF
     # Module: zeek
@@ -196,6 +198,8 @@ EOF
     # Restart Zeek and Filebeat
     sudo /usr/local/zeek/bin/zeekctl deploy
     sudo systemctl restart filebeat
+
+    systemctl start zeek
 }
 
 configure_zsh() {
@@ -203,9 +207,8 @@ configure_zsh() {
     echo "[$(date +%H:%M:%S)]: Configuring ZSH..."
     
     # Modifying the .zshrc file for Kali
-    sed -i '/^setopt hist_verify/a # ZSH Config for Filebeats/ELK\nsetopt INC_APPEND_HISTORY' ~/.zshrc
+    sed -i '/^setopt hist_verify/a setopt INC_APPEND_HISTORY\t# ZSH Config for Filebeats/ELK\n' ~/.zshrc
     sed -i "/^precmd() {/a     # Logging zsh commands to rsyslog\n    eval 'RETRN_VAL=\$?;logger -S 10000 -p local6.debug \"{\"user\": \"\$(whoami)\", \"path\": \"\$(pwd)\", \"pid\": \"\$\$\", \"b64_command\": \"\$(history | tail -n1 | /usr/bin/sed \"s/[ 0-9 ]*//\" | base64 -w0 )\", \"status\": \"\$RETRN_VAL\"}\"'" ~/.zshrc
-    
     
     # Modifying root's zshrc
     sudo cp ~/.zshrc /root/.zshrc
@@ -241,7 +244,7 @@ configure_filebeat() {
     cat >/etc/filebeat/filebeat.yml <<EOF
     filebeat.inputs:
     - type: log
-      enabled: false
+      enabled: true
       paths:
         - /var/log/zsh.log
     
