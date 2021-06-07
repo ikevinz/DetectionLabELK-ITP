@@ -34,6 +34,8 @@ install_zeek(){
 
 install_keylog(){
     echo "[$(date +%H:%M:%S)]: Installing Keylogger..."
+	mkdir /etc/logkeys
+	cd /etc/logkeys
     apt-get install -y build-essential autotools-dev autoconf kbd
     git clone https://github.com/kernc/logkeys.git
     cd logkeys
@@ -269,17 +271,17 @@ main() {
     
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
-    install_filebeats
+    #install_filebeats
     install_keylog
-    install_zeek
+    #install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
     #Configuring
     echo "[$(date +%H:%M:%S)]: Configuring RED Machine..."
-    configure_rsyslog
-    configure_zsh
-    configure_filebeat
-    configure_zeek
+    #configure_rsyslog
+    #configure_zsh
+    #configure_filebeat
+    #configure_zeek
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     
     #Cleanup
