@@ -206,7 +206,7 @@ configure_zsh() {
     
     # Modifying the .zshrc file for Kali
     sed -i '/^setopt hist_verify/a setopt INC_APPEND_HISTORY\t# ZSH Config for Filebeats/ELK\n' ~/.zshrc
-    sed -i "/^precmd() {/a     # Logging zsh commands to rsyslog\n    eval 'RETRN_VAL=\$?;logger -S 10000 -p local6.debug \"{\"user\": \"\$(whoami)\", \"path\": \"\$(pwd)\", \"pid\": \"\$\$\", \"b64_command\": \"\$(history | tail -n1 | /usr/bin/sed \"s/[ 0-9 ]*//\" | base64 -w0 )\", \"status\": \"\$RETRN_VAL\"}\"'" ~/.zshrc
+    sed -i "/^precmd() {/a     # Logging zsh commands to rsyslog\n    eval \x22RETRN_VAL=\$?;logger -S 10000 -p local6.debug \x27{\x5c\x22user\x5c\x22: \x5c\x22\$(whoami)\x5c\x22, \x5c\x22path\x5c\x22: \x5c\x22\$(pwd)\x5c\x22, \x5c\x22pid\x5c\x22: \x5c\x22\$\$\x5c\x22, \x5c\x22b64_command\x5c\x22: \x5c\x22\$(history | tail -n1 | /usr/bin/sed \x22s/[ 0-9 ]*//\x22 | base64 -w0 )\x5c\x22, \x5c\x22status\x5c\x22: \x5c\x22\$RETRN_VAL\x5c\x22}\x27\x22" ~/.zshrc
     
     # Modifying root's zshrc
     sudo cp ~/.zshrc /root/.zshrc
@@ -245,10 +245,12 @@ configure_filebeat() {
       enabled: true
       paths:
         - /var/log/zsh.log
-        - /usr/local/zeek/logs/current/*.log
+      fields_under_root: true
       fields:
-        infralogtype: zsh
+        REDlogtype: zsh
     
+    name: ${HOSTNAME}
+
     filebeat.config.modules:
       path: \${path.config}/modules.d/*.yml
       reload.enabled: true
