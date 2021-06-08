@@ -58,13 +58,6 @@ EOF
 /bin/systemctl enable elasticsearch.service
 /bin/systemctl start elasticsearch.service
 
-#logstash
-#cat >/etc/logstash/logstash.yml <<EOF
-#  path.data: /var/lib/logstash
-#  path.logs: /var/log/logstash
-#  pipeline.ordered: auto
-#EOF
-
 sudo touch /etc/logstash/conf.d/logstash.conf
 cat > /etc/logstash/conf.d/logstash.conf <<EOF
 # Sample Logstash configuration for creating a simple
@@ -80,8 +73,6 @@ output {
   elasticsearch {
     hosts => ["http://192.168.38.105:9200"]
     index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
-    #user => "elastic"
-    #password => "changeme"
   }
 }
 EOF
