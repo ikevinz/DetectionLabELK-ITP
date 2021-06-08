@@ -292,6 +292,7 @@ while true; do
   if echo $result | grep -q logger; then break; fi
   sleep 1
 done
+
 /bin/systemctl enable filebeat.service
 /bin/systemctl start filebeat.service
 
