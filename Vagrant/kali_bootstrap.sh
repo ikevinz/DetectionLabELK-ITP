@@ -65,7 +65,7 @@ configure_zeek() {
     # Enable Zeek Filebeat Module
     sudo filebeat modules enable zeek
 
-    export PATH=$PATH:/usr/local/zeek/bin
+    export PATH=/usr/local/zeek/bin:$PATH
 
     # Config FIlebeat Zeek Module
     sudo tee -a /etc/filebeat/modules.d/zeek.yml <<EOF
@@ -246,6 +246,8 @@ configure_filebeat() {
       paths:
         - /var/log/zsh.log
         - /usr/local/zeek/logs/current/*.log
+      fields:
+        infralogtype: zsh
     
     filebeat.config.modules:
       path: \${path.config}/modules.d/*.yml
