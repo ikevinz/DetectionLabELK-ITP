@@ -299,6 +299,9 @@ done
 /bin/systemctl enable auditbeat.service
 /bin/systemctl start auditbeat.service
 
+# Export logstash cert
+sudo cp /etc/logstash/certs/instance/instance.crt /vagrant/resources/kali/logstash.crt
+
 # load SIEM prebuilt rules
 echo "Load SIEM prebuilt rules"
 sleep 60

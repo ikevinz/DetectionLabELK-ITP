@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 
 txtred='\033[1;31m'
 txtcyan='\033[1;36m'
