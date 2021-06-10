@@ -57,7 +57,7 @@ configure_rsyslog() {
     
     # Create the file under /var/log
     sudo touch /var/log/zsh.log
-    
+    sudo systemctl restart rsyslog.service
     echo "[$(date +%H:%M:%S)]: Rsyslog configuration complete."
 }
 
@@ -205,17 +205,19 @@ configure_zsh() {
     echo "[$(date +%H:%M:%S)]: Configuring ZSH..."
     
     # Modifying the .zshrc file for Kali
-    sed -i '/^setopt hist_verify/a setopt INC_APPEND_HISTORY\t# ZSH Config for Filebeats/ELK\n' ~/.zshrc
-    sed -i "/^precmd() {/a     # Logging zsh commands to rsyslog\n    eval \x22RETRN_VAL=\$?;logger -S 10000 -p local6.debug \x27{\x5c\x22user\x5c\x22: \x5c\x22\$(whoami)\x5c\x22, \x5c\x22path\x5c\x22: \x5c\x22\$(pwd)\x5c\x22, \x5c\x22pid\x5c\x22: \x5c\x22\$\$\x5c\x22, \x5c\x22b64_command\x5c\x22: \x5c\x22\$(history | tail -n1 | /usr/bin/sed \x22s/[ 0-9 ]*//\x22 | base64 -w0 )\x5c\x22, \x5c\x22status\x5c\x22: \x5c\x22\$RETRN_VAL\x5c\x22}\x27\x22" ~/.zshrc
+    sed -i '/^setopt hist_verify/a setopt INC_APPEND_HISTORY\t# ZSH Config for Filebeats/ELK\n' /home/vagrant/.zshrc
+    sed -i "/^precmd() {/a    # Logging zsh commands to rsyslog\n    eval "'\x27RETRN_VAL=$?;logger -S 10000 -p local6.debug "{\\"user\\": \\"$(whoami)\\", \\"path\\": \\"$(pwd)\\", \\"pid\\": \\"$$\\", \\"b64_command\\": \\"$(history | tail -n1 | /usr/bin/sed "s/[ 0-9 ]*//" | base64 -w0 )\\", \\"status\\": \\"$RETRN_VAL\\"}"\x27' /home/vagrant/.zshrc
     
     # Modifying root's zshrc
-    sudo cp ~/.zshrc /root/.zshrc
+    sed -i '/^setopt hist_verify/a setopt INC_APPEND_HISTORY\t# ZSH Config for Filebeats/ELK\n' /root/.zshrc
+    sed -i "/^precmd() {/a    # Logging zsh commands to rsyslog\n    eval "'\x27RETRN_VAL=$?;logger -S 10000 -p local6.debug "{\\"user\\": \\"$(whoami)\\", \\"path\\": \\"$(pwd)\\", \\"pid\\": \\"$$\\", \\"b64_command\\": \\"$(history | tail -n1 | /usr/bin/sed "s/[ 0-9 ]*//" | base64 -w0 )\\", \\"status\\": \\"$RETRN_VAL\\"}"\x27' /root/.zshrc
     
     # Modifying /etc/zsh/zshrc
+	sed -i "$ aprecmd() {\n    # Logging zsh commands to rsyslog\n    eval "'\x27RETRN_VAL=$?;logger -S 10000 -p local6.debug "{\\"user\\": \\"$(whoami)\\", \\"path\\": \\"$(pwd)\\", \\"pid\\": \\"$$\\", \\"b64_command\\": \\"$(history | tail -n1 | /usr/bin/sed "s/[ 0-9 ]*//" | base64 -w0 )\\", \\"status\\": \\"$RETRN_VAL\\"}"\x27\n}' /etc/zsh/zshrc
     #cd /etc/zsh
     #sudo (echo $'\n'; echo >> zshrc
     # Reloading zsh
-    source ~/.zshrc
+    # source ~/.zshrc
     
     echo "[$(date +%H:%M:%S)]: ZSH configuration complete."
 }
@@ -223,7 +225,9 @@ configure_zsh() {
 configure_filebeat() {
     # Configure ELK Forwarding
     echo "[$(date +%H:%M:%S)]: Configuring ELK & FileBeats forwarding..."
-    
+    sudo cp /vagrant/resources/kali/logstash.crt /etc/filebeat/
+	sudo chmod 660 /etc/filebeat/logstash.crt
+	
     # Configuring filebeat.yml
     #cd /etc/filebeat
     
@@ -245,19 +249,27 @@ configure_filebeat() {
       enabled: true
       paths:
         - /var/log/zsh.log
-      fields_under_root: true
       fields:
-        REDlogtype: zsh
-    
-    name: ${HOSTNAME}
+        infralogtype: zsh
+      fields_under_root: true
 
     filebeat.config.modules:
       path: \${path.config}/modules.d/*.yml
       reload.enabled: true
       reload.period: 10s
-    
+
     output.logstash:
-      hosts: ["192.168.38.105:5044"]
+      hosts: ["192.168.38.105:5045"]
+      ssl.certificate_authorities: ["/etc/filebeat/logstash.crt"]
+
+    logging:
+      level: info
+      to_files: true
+      to_syslog: false
+      files:
+        path: /var/log/filebeat
+        name: zsh-beat.log
+        keepfiles: 2
 EOF
 
     #Start services
@@ -274,19 +286,19 @@ cleanup(){
 
 main() {
     echo "------------\tKALI BOOTSTRAP RUNNING\t------------"
-    
+    sudo timedatectl set-timezone Asia/Singapore
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
-    #install_filebeats
-    install_keylog
+    install_filebeats
+    #install_keylog
     #install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
     #Configuring
     echo "[$(date +%H:%M:%S)]: Configuring RED Machine..."
-    #configure_rsyslog
-    #configure_zsh
-    #configure_filebeat
+    configure_rsyslog
+    configure_zsh
+    configure_filebeat
     #configure_zeek
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     

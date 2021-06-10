@@ -8,6 +8,7 @@ apt-get -qq install default-jre
 apt-get -qq install elasticsearch -y # 1st install elasticseatch to get JDK
 export JAVA_HOME=/usr/share/elasticsearch/jdk && echo export JAVA_HOME=/usr/share/elasticsearch/jdk >>/etc/bash.bashrc
 apt-get -qq install kibana filebeat auditbeat elasticsearch-curator logstash -y
+sudo timedatectl set-timezone Asia/Singapore
 
 cat >/etc/cron.daily/curator <<EOF
 #!/bin/sh

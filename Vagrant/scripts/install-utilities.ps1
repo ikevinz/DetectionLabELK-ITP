@@ -16,5 +16,6 @@ If ($(hostname) -eq "win10") {
   regedit /s c:\vagrant\resources\windows\MenuStyle_Default_Win7.reg
 }
 choco install -y --limit-output --no-progress NotepadPlusPlus GoogleChrome WinRar
+choco install -y --limit-output --no-progress GoogleChrome --ignore-checksums
 
 Write-Host "Utilties installation complete!"

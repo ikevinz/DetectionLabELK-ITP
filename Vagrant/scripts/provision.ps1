@@ -5,7 +5,7 @@ $box = Get-ItemProperty -Path HKLM:SYSTEM\CurrentControlSet\Control\ComputerName
 $box = $box.ComputerName.ToString().ToLower()
 
 Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Setting timezone to UTC..."
-c:\windows\system32\tzutil.exe /s "UTC"
+c:\windows\system32\tzutil.exe /s "Singapore Standard Time"
 
 Write-Host "$('[{0:HH:mm}]' -f (Get-Date)) Checking if Windows evaluation is expiring soon or expired..."
 . c:\vagrant\scripts\fix-windows-expiration.ps1

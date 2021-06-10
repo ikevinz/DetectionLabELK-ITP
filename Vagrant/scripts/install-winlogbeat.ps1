@@ -85,15 +85,19 @@ winlogbeat.event_logs:
           file: ${path.home}/module/powershell/config/winlogbeat-powershell.js
 
 setup.kibana:
-  host: "192.168.38.105:5601"
+  host: "https://192.168.38.105:5601"
   username: vagrant
   password: vagrant
+  ssl.enabled: true
+  ssl.verification_mode: none
 
 setup.dashboards.enabled: true
 setup.ilm.enabled: false
 
 output.elasticsearch:
-  hosts: ["192.168.38.105:9200"]
+  hosts: ["https://192.168.38.105:9200"]
+  ssl.enabled: true
+  ssl.verification_mode: none
 "@
   $confFile | Out-File -FilePath C:\ProgramData\chocolatey\lib\winlogbeat\tools\winlogbeat.yml -Encoding ascii
 
