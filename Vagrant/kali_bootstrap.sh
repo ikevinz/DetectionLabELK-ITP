@@ -193,7 +193,20 @@ EOF
     sudo systemctl restart filebeat
 
     #Configure Zeek to output json
-    echo "@load policy/tuning/json-logs.zeek" | sudo tee -a /usr/local/zeek/share/zeek/site/local.zeek
+    echo '@load policy/tuning/json-logs.zeek
+@load protocols/ftp/software
+@load protocols/smtp/software
+@load protocols/ssh/software
+@load protocols/http/software
+@load tuning/json-logs
+@load policy/integration/collective-intel
+@load policy/frameworks/intel/do_notice
+@load frameworks/intel/seen
+@load frameworks/intel/do_notice
+@load frameworks/files/hash-all-files
+@load base/protocols/smb
+@load policy/protocols/conn/vlan-logging
+@load policy/protocols/conn/mac-logging' | sudo tee -a /usr/local/zeek/share/zeek/site/local.zeek
 
     # Restart Zeek and Filebeat
     sudo /usr/local/zeek/bin/zeekctl deploy
