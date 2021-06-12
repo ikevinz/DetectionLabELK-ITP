@@ -68,7 +68,7 @@ configure_zeek() {
     export PATH=/usr/local/zeek/bin:$PATH
 
     # Config FIlebeat Zeek Module
-    sudo tee -a /etc/filebeat/modules.d/zeek.yml <<EOF
+    sudo tee /etc/filebeat/modules.d/zeek.yml <<EOF
     # Module: zeek
     # Docs: /guide/en/beats/filebeat/7.6/filebeat-module-zeek.html
 
