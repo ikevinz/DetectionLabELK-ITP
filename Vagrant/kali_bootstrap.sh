@@ -302,17 +302,17 @@ main() {
     sudo timedatectl set-timezone Asia/Singapore
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
-    install_filebeats
+    #install_filebeats
     #install_keylog
-    #install_zeek
+    install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
     #Configuring
     echo "[$(date +%H:%M:%S)]: Configuring RED Machine..."
-    configure_rsyslog
-    configure_zsh
-    configure_filebeat
-    #configure_zeek
+    #configure_rsyslog
+    #configure_zsh
+    #configure_filebeat
+    configure_zeek
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     
     #Cleanup
