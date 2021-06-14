@@ -15,6 +15,15 @@ install_filebeats() {
     echo "[$(date +%H:%M:%S)]: Filebeats Installed!"
 }
 
+install_auditbeat() {
+    # Install Auditbeat
+    echo "[$(date +%H:%M:%S)]: Installing Filebeats..."
+    cd /tmp/setup_temp
+    curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.13.1-amd64.deb
+	sudo dpkg -i auditbeat-7.13.1-amd64.deb
+    echo "[$(date +%H:%M:%S)]: Auditbeat Installed!"
+}
+
 install_zeek(){
     echo "[$(date +%H:%M:%S)]: Installing Zeek..."
     #Install Dependencies
@@ -292,6 +301,56 @@ EOF
     echo "[$(date +%H:%M:%S)]: ELK & FileBeats forwarding configuration complete."
 }
 
+configure_auditbeat() {
+	cat >/etc/auditbeat/auditbeat.yml <<EOF
+auditbeat.config.modules:
+  path: \${path.config}/modules.d/*.yml
+  reload.period: 10s
+  reload.enabled: true
+auditbeat.max_start_delay: 10s
+
+auditbeat.modules:
+- module: auditd
+  audit_rule_files: [ '\${path.config}/audit.rules.d/*.conf' ]
+  audit_rules: |
+- module: file_integrity
+  paths:
+  - /bin
+  - /usr/bin
+  - /sbin
+  - /usr/sbin
+  - /etc
+- module: system
+  state.period: 12h
+  user.detect_password_changes: true
+  login.wtmp_file_pattern: /var/log/wtmp*
+  login.btmp_file_pattern: /var/log/btmp*
+setup.template.settings:
+  index.number_of_shards: 1
+setup.kibana:
+  host: "https://192.168.38.105:5601"
+  username: vagrant
+  password: vagrant
+  ssl.enabled: true
+  ssl.verification_mode: none
+
+setup.dashboards.enabled: true
+setup.ilm.enabled: false
+
+output.elasticsearch:
+  hosts: ["https://192.168.38.105:9200"]
+  ssl.enabled: true
+  ssl.verification_mode: none
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+EOF
+	mv /etc/auditbeat/audit.rules.d/sample-rules.conf.disabled /etc/auditbeat/audit.rules.d/sample-rules.conf
+	/bin/systemctl enable auditbeat.service
+	/bin/systemctl start auditbeat.service
+}
+
 cleanup(){
     #Deleting temp files
     rm -rf /tmp/setup_temp
@@ -303,6 +362,7 @@ main() {
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
     #install_filebeats
+	#install_auditbeat
     #install_keylog
     install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
@@ -313,6 +373,7 @@ main() {
     #configure_zsh
     #configure_filebeat
     configure_zeek
+	#configure_auditbeat
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     
     #Cleanup
