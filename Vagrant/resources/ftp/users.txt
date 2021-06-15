@@ -1,0 +1,3 @@
+adams:password:/bin/bash
+barrow:test:/bin/bash
+chloe:ecksdee:/bin/bash
