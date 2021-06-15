@@ -1,9 +1,6 @@
 #! /usr/bin/env bash
 
 # This is the script that is used to provision the kali host
-#! /usr/bin/env bash
-
-# This is the script that is used to provision the kali host
 
 install_filebeats() {
     # Install Filebeats
@@ -357,7 +354,7 @@ cleanup(){
 }
 
 main() {
-    echo "------------\tKALI BOOTSTRAP RUNNING\t------------"
+    echo "------------  KALI BOOTSTRAP RUNNING  ------------"
     sudo timedatectl set-timezone Asia/Singapore
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
@@ -381,7 +378,7 @@ main() {
     cleanup
     echo "[$(date +%H:%M:%S)]: Clean up complete."
     
-    echo "------------\tKALI SETUP COMPLETE\t------------"
+    echo "------------  KALI SETUP COMPLETE  ------------"
 }
 
 main
