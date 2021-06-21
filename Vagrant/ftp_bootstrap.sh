@@ -13,7 +13,7 @@ install_vsftpd() {
 
 configure_vsftpd() {
     # Configure UFW
-    sudo ufw allow from any to any port 20,21,10000:11000 proto tcp
+    sudo ufw allow from any to any port 20,21,40000:50000 proto tcp
     sudo service ufw start
 
     # Backup default conf (copy is saved to /vagrant/resources/ftp/vsftpd_default.conf)
