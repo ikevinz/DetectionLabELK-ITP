@@ -252,17 +252,10 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define "ftp" do |cfg|
-    cfg.vm.box = "bento/ubuntu-18.04"
+    cfg.vm.box = "centos/8"
     cfg.vm.hostname = "ftp"
     cfg.vm.provision :shell, path: "ftp_bootstrap.sh"
     cfg.vm.network :private_network, ip: "192.168.38.108", gateway: "192.168.38.1", dns: "8.8.8.8"
-
-    cfg.vm.provider "vmware_desktop" do |v, override|
-      v.vmx["displayname"] = "ftp"
-      v.memory = 4096
-      v.cpus = 2
-      v.gui = false
-    end
 
     cfg.vm.provider "virtualbox" do |vb, override|
       vb.gui = false
