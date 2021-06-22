@@ -53,6 +53,9 @@ configure_vsftpd() {
 
     # Adds users to vsftpd allowed list
     sudo touch /etc/vsftpd/vsftpd.userlist
+
+    #Create User Home Directory
+    sudo mkdir /etc/vsftpd/user_dir
     
     for i in $(cat /vagrant/resources/ftp/users.txt); do
         # creates emulated enterprise users from /vagrant/resources/ftp/users.txt
@@ -60,18 +63,24 @@ configure_vsftpd() {
         PASSWORD=$(echo "$i" | cut -d: -f2)
         USER_SHELL=$(echo "$i" | cut -d: -f3)
         
-        sudo useradd -m "$USERNAME" -s "$USER_SHELL"
+        #sudo useradd -m $USERNAME -s $USER_SHELL
+        sudo useradd -m $USERNAME
         echo "$USERNAME:$PASSWORD" | sudo chpasswd
+        sudo chsh -s $USER_SHELL $USERNAME
         
         # Prepare User Home Directories
         sudo mkdir /home/$USERNAME/ftp
-        sudo chown nobody:nogroup /home/$USERNAME/ftp
-        sudo chmod a-w /home/$USERNAME/ftp
-        sudo mkdir /home/$USERNAME/ftp/files
-        sudo chown $USERNAME:$USERNAME /home/$USERNAME/ftp/files
+        #sudo chown nobody:nogroup /home/$USERNAME/ftp
+        #sudo chown $USERNAME:$USERNAME /home/$USERNAME/ftp
+        #sudo usermod -d /home/$USERNAME/ftp $USERNAME
+        sudo chmod a-w /home/$USERNAME
+        #sudo mkdir /home/$USERNAME/ftp/files
+        #sudo chown $USERNAME:$USERNAME /home/$USERNAME/ftp/files
+        sudo chmod -R 750 /home/$USERNAME/ftp
+        sudo chown -R $USERNAME: /home/$USERNAME/ftp
 
         # Add user to vsftpd allowed list
-        echo $USERNAME | sudo tee -a /etc/vsftpd.userlist
+        echo $USERNAME | sudo tee -a /etc/vsftpd/vsftpd.userlist
     done
 }
 
@@ -139,8 +148,11 @@ secure_vsftpd() {
 
     sudo cp /vagrant/resources/ftp/vsftpd.conf /etc/vsftpd.conf
 
+    sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+
     # Restart vsftpd
-    sudo systemctl restart vsftpd.service
+    sudo systemctl start vsftpd.service
+    sudo systemctl restart sshd
 }
 
 main() {
