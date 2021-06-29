@@ -122,50 +122,53 @@ xpack.monitoring.collection.interval: 10s
 xpack.monitoring.collection.pipeline.details.enabled: true
 EOF
 
-sudo touch /etc/logstash/conf.d/zsh.conf
-cat > /etc/logstash/conf.d/zsh.conf <<EOF
-input {
-    beats {
-        port => 5045
-        host => "192.168.38.105"
-        ssl => true
-        ssl_certificate => "/etc/logstash/certs/instance/instance.crt"
-        ssl_key => "/etc/logstash/certs/logstash.pkcs8.key"
-    }
-}
+sudo cp /vagrant/resources/logger/red.conf /etc/logstash/conf.d/red.conf
+sudo cp /vagrant/resources/logger/parse_cmd.rb /etc/logstash/parse_cmd.rb
+sudo cp /vagrant/resources/logger/context_mapping.rb /etc/logstash/context_mapping.rb
+# sudo touch /etc/logstash/conf.d/zsh.conf
+# cat > /etc/logstash/conf.d/zsh.conf <<EOF
+# input {
+#     beats {
+#         port => 5045
+#         host => "192.168.38.105"
+#         ssl => true
+#         ssl_certificate => "/etc/logstash/certs/instance/instance.crt"
+#         ssl_key => "/etc/logstash/certs/logstash.pkcs8.key"
+#     }
+# }
 
-filter {
-  if [infralogtype] == "zsh" {
-    grok {
-      match => { "message" => "^%{SYSLOGTIMESTAMP:syslog_timestamp}\s%{HOSTNAME}\s.+?:\s(?<json_message>.*)$"}
-      add_field => [ "received_at", "%{@timestamp}" ]
-    }
-    date {
-      match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
-    }
-    json {
-      source => "json_message"
-    }
-    ruby {
-      init => "require 'base64'"
-      code => 'event.set("[command]", event.get("b64_command") ? Base64.decode64(event.get("b64_command")) : nil)'
-    }
-  }
-}
+# filter {
+#   if [infralogtype] == "zsh" {
+#     grok {
+#       match => { "message" => "^%{SYSLOGTIMESTAMP:syslog_timestamp}\s%{HOSTNAME}\s.+?:\s(?<json_message>.*)$"}
+#       add_field => [ "received_at", "%{@timestamp}" ]
+#     }
+#     date {
+#       match => [ "syslog_timestamp", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
+#     }
+#     json {
+#       source => "json_message"
+#     }
+#     ruby {
+#       init => "require 'base64'"
+#       code => 'event.set("[command]", event.get("b64_command") ? Base64.decode64(event.get("b64_command")) : nil)'
+#     }
+#   }
+# }
 
-output {
-  if [infralogtype] == "zsh" {
-    elasticsearch{
-      hosts => ["192.168.38.105:9200"]
-      sniffing => true
-      index => "zsh-%{+YYYY.MM.dd}"
-      ssl => true
-      ssl_certificate_verification => false
-      cacert => '/etc/logstash/certs/logstash.pem'
-    }
-  }
-}
-EOF
+# output {
+#   if [infralogtype] == "zsh" {
+#     elasticsearch{
+#       hosts => ["192.168.38.105:9200"]
+#       sniffing => true
+#       index => "zsh-%{+YYYY.MM.dd}"
+#       ssl => true
+#       ssl_certificate_verification => false
+#       cacert => '/etc/logstash/certs/logstash.pem'
+#     }
+#   }
+# }
+# EOF
 
 sudo chown -R logstash:logstash /etc/logstash/
 /bin/systemctl enable logstash.service
