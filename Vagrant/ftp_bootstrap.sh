@@ -83,8 +83,55 @@ configure_vsftpd() {
         echo $USERNAME | sudo tee -a /etc/vsftpd/vsftpd.userlist
     done
 }
+configure_filebeat() {
+  echo "[$(date +%H:%M:%S)]: Configuring Filebeat..."
+
+  cat >/etc/filebeat/filebeat.yml <<EOF
+  filebeat.inputs:
+  - type: log
+    enabled: false
+    paths:
+      - /var/log/auth.log
+      - /var/log/syslog
+
+  filebeat.config.modules:
+    path: \${path.config}/modules.d/*.yml
+    reload.enabled: true
+    reload.period: 10s
+
+  setup.kibana:
+    host: "https://192.168.38.105:5601"
+    username: vagrant
+    password: vagrant
+    ssl.enabled: true
+    ssl.verification_mode: none
+
+  setup.dashboards.enabled: true
+  setup.ilm.enabled: false
+
+  output.elasticsearch:
+    hosts: ["https://192.168.38.105:9200"]
+    ssl.enabled: true
+    ssl.verification_mode: none
+  EOF
+
+  cat >/etc/filebeat/modules.d/osquery.yml.disabled <<EOF
+  - module: osquery
+    result:
+      enabled: true
+
+      # Set custom paths for the log files. If left empty,
+      # Filebeat will choose the paths depending on your OS.
+      var.paths: ["/var/log/kolide/osquery_result"]
+EOF
+  filebeat --path.config /etc/filebeat modules enable osquery
+
+  echo "[$(date +%H:%M:%S)]: FileBeats forwarding configuration complete."
+}
 
 configure_auditbeat() {
+  echo "[$(date +%H:%M:%S)]: Configuring Auditbeat..."
+
 	cat >/etc/auditbeat/auditbeat.yml <<EOF
 auditbeat.config.modules:
   path: \${path.config}/modules.d/*.yml
@@ -132,6 +179,8 @@ EOF
 	mv /etc/auditbeat/audit.rules.d/sample-rules.conf.disabled /etc/auditbeat/audit.rules.d/sample-rules.conf
 	/bin/systemctl enable auditbeat.service
 	/bin/systemctl start auditbeat.service
+
+  echo "[$(date +%H:%M:%S)]: Aduitbeat configuration complete."
 }
 
 secure_vsftpd() {
@@ -150,9 +199,17 @@ secure_vsftpd() {
 
     sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
 
+    # Create vsftpd log file
+    sudo touch /var/log/vsftpd.log
+
     # Restart vsftpd
     sudo systemctl start vsftpd.service
     sudo systemctl restart sshd
+}
+
+cleanup(){
+    #Deleting temp files
+    rm -rf /tmp/setup_temp
 }
 
 main() {
@@ -161,19 +218,21 @@ main() {
 
     echo "[$(date +%H:%M:%S)]: Setting Up FTP Server..."
     install_vsftpd
-    #install_filebeat
-    #install_auditbeat
+    install_filebeat
+    install_auditbeat
     echo "[$(date +%H:%M:%S)]: Installation Complete."
 
     echo "[$(date +%H:%M:%S)]: Configuring FTP Server..."
     configure_vsftpd
-    #configure_filebeat
-    #configure_auditbeat
+    configure_filebeat
+    configure_auditbeat
     echo "[$(date +%H:%M:%S)]: Configuration Complete."
 
     echo "[$(date +%H:%M:%S)]: Securing FTP Server..."
     secure_vsftpd
     echo "[$(date +%H:%M:%S)]: Security Configuration Complete."
+
+    cleanup
 
     echo "------------  FTP SETUP COMPLETE  ------------"
 }
