@@ -17,18 +17,18 @@ install_auditbeat() {
     # Install Auditbeat
     echo "[$(date +%H:%M:%S)]: Installing Filebeats..."
     cd /tmp/setup_temp
-    curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.13.1-amd64.deb
-	sudo dpkg -i auditbeat-7.13.1-amd64.deb
+    curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.13.2-x86_64.rpm
+    sudo rpm -vi auditbeat-7.13.2-x86_64.rpm
     echo "[$(date +%H:%M:%S)]: Auditbeat Installed!"
 }
 
-install_filebeats() {
+install_filebeat() {
     # Install Filebeats
     echo "[$(date +%H:%M:%S)]: Installing Filebeats..."
     mkdir /tmp/setup_temp
     cd /tmp/setup_temp
-    curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.13.0-amd64.deb
-    sudo dpkg -i filebeat-7.13.0-amd64.deb
+    curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.13.2-x86_64.rpm
+    sudo rpm -vi filebeat-7.13.2-x86_64.rpm
     echo "[$(date +%H:%M:%S)]: Filebeats Installed!"
 }
 
@@ -113,7 +113,7 @@ configure_filebeat() {
     hosts: ["https://192.168.38.105:9200"]
     ssl.enabled: true
     ssl.verification_mode: none
-  EOF
+EOF
 
   cat >/etc/filebeat/modules.d/osquery.yml.disabled <<EOF
   - module: osquery
@@ -180,7 +180,7 @@ EOF
 	/bin/systemctl enable auditbeat.service
 	/bin/systemctl start auditbeat.service
 
-  echo "[$(date +%H:%M:%S)]: Aduitbeat configuration complete."
+  echo "[$(date +%H:%M:%S)]: Auditbeat configuration complete."
 }
 
 secure_vsftpd() {
