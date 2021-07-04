@@ -232,7 +232,9 @@ main() {
     secure_vsftpd
     echo "[$(date +%H:%M:%S)]: Security Configuration Complete."
 
+    echo "[$(date +%H:%M:%S)]: Cleaning Up..."
     cleanup
+    echo "[$(date +%H:%M:%S)]: Clean up complete."
 
     echo "------------  FTP SETUP COMPLETE  ------------"
 }

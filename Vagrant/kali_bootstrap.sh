@@ -271,6 +271,14 @@ configure_filebeat() {
       fields:
         infralogtype: zsh
       fields_under_root: true
+      
+    - type: log
+      enabled: true
+      paths:
+        - /var/log/keylogger.log
+      fields:
+        infralogtype: keylogger
+      fields_under_root: true
 
     filebeat.config.modules:
       path: \${path.config}/modules.d/*.yml
@@ -358,19 +366,19 @@ main() {
     sudo timedatectl set-timezone Asia/Singapore
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
-    #install_filebeats
-	#install_auditbeat
-    #install_keylog
+    install_filebeats
+	install_auditbeat
+    install_keylog
     install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
     #Configuring
     echo "[$(date +%H:%M:%S)]: Configuring RED Machine..."
-    #configure_rsyslog
-    #configure_zsh
-    #configure_filebeat
+    configure_rsyslog
+    configure_zsh
+    configure_filebeat
     configure_zeek
-	#configure_auditbeat
+	configure_auditbeat
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     
     #Cleanup
