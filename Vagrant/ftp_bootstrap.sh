@@ -32,6 +32,74 @@ install_filebeat() {
     echo "[$(date +%H:%M:%S)]: Filebeats Installed!"
 }
 
+install_zeek() {
+  echo "[$(date +%H:%M:%S)]: Installing Zeek..."
+  # Environment variables
+  NODECFG=/opt/zeek/etc/node.cfg
+  # SPLUNK_ZEEK_JSON=/opt/splunk/etc/apps/Splunk_TA_bro
+  # SPLUNK_ZEEK_MONITOR='monitor:///opt/zeek/spool/manager'
+  # SPLUNK_SURICATA_MONITOR='monitor:///var/log/suricata'
+  # SPLUNK_SURICATA_SOURCETYPE='json_suricata'
+  sh -c "echo 'deb http://download.opensuse.org/repositories/security:/zeek/xUbuntu_18.04/ /' > /etc/apt/sources.list.d/security:zeek.list"
+  wget -nv https://download.opensuse.org/repositories/security:zeek/xUbuntu_18.04/Release.key -O /tmp/Release.key
+  apt-key add - </tmp/Release.key &>/dev/null
+  # Update APT repositories
+  apt-get -qq -ym update
+  # Install tools to build and configure Zeek
+  apt-get -qq -ym install zeek crudini
+  export PATH=$PATH:/opt/zeek/bin
+  pip install zkg==2.1.1
+  zkg refresh
+  zkg autoconfig
+  zkg install --force salesforce/ja3
+  # Load Zeek scripts
+  echo '
+  @load protocols/ftp/software
+  @load protocols/smtp/software
+  @load protocols/ssh/software
+  @load protocols/http/software
+  @load tuning/json-logs
+  @load policy/integration/collective-intel
+  @load policy/frameworks/intel/do_notice
+  @load frameworks/intel/seen
+  @load frameworks/intel/do_notice
+  @load frameworks/files/hash-all-files
+  @load base/protocols/smb
+  @load policy/protocols/conn/vlan-logging
+  @load policy/protocols/conn/mac-logging
+  @load ja3
+
+  redef Intel::read_files += {
+    "/opt/zeek/etc/intel.dat"
+  };
+  ' >>/opt/zeek/share/zeek/site/local.zeek
+
+  # Configure Zeek
+  crudini --del $NODECFG zeek
+  crudini --set $NODECFG manager type manager
+  crudini --set $NODECFG manager host localhost
+  crudini --set $NODECFG proxy type proxy
+  crudini --set $NODECFG proxy host localhost
+
+  # Setup $CPUS numbers of Zeek workers
+  crudini --set $NODECFG worker-eth1 type worker
+  crudini --set $NODECFG worker-eth1 host localhost
+  crudini --set $NODECFG worker-eth1 interface eth1
+  crudini --set $NODECFG worker-eth1 lb_method pf_ring
+  crudini --set $NODECFG worker-eth1 lb_procs "$(nproc)"
+
+  # Setup Zeek to run at boot
+  cp /vagrant/resources/zeek/zeek.service /lib/systemd/system/zeek.service
+  systemctl enable zeek
+  systemctl start zeek
+
+  # Verify that Zeek is running
+  if ! pgrep -f zeek >/dev/null; then
+    echo "Zeek attempted to start but is not running. Exiting"
+    exit 1
+  fi
+}
+
 configure_vsftpd() {
     # Configure UFW
     #sudo ufw allow from any to any port 20,21,40000:50000 proto tcp
@@ -115,15 +183,17 @@ configure_filebeat() {
     ssl.verification_mode: none
 EOF
 
-  cat >/etc/filebeat/modules.d/osquery.yml.disabled <<EOF
-  - module: osquery
-    result:
-      enabled: true
+#   cat >/etc/filebeat/modules.d/osquery.yml.disabled <<EOF
+#   - module: osquery
+#     result:
+#       enabled: true
 
-      # Set custom paths for the log files. If left empty,
-      # Filebeat will choose the paths depending on your OS.
-      var.paths: ["/var/log/kolide/osquery_result"]
-EOF
+#       # Set custom paths for the log files. If left empty,
+#       # Filebeat will choose the paths depending on your OS.
+#       var.paths: ["/var/log/kolide/osquery_result"]
+# EOF
+#   filebeat --path.config /etc/filebeat modules enable osquery
+
   filebeat --path.config /etc/filebeat modules enable osquery
 
   echo "[$(date +%H:%M:%S)]: FileBeats forwarding configuration complete."
@@ -132,50 +202,7 @@ EOF
 configure_auditbeat() {
   echo "[$(date +%H:%M:%S)]: Configuring Auditbeat..."
 
-	cat >/etc/auditbeat/auditbeat.yml <<EOF
-auditbeat.config.modules:
-  path: \${path.config}/modules.d/*.yml
-  reload.period: 10s
-  reload.enabled: true
-auditbeat.max_start_delay: 10s
-
-auditbeat.modules:
-- module: auditd
-  audit_rule_files: [ '\${path.config}/audit.rules.d/*.conf' ]
-  audit_rules: |
-- module: file_integrity
-  paths:
-  - /bin
-  - /usr/bin
-  - /sbin
-  - /usr/sbin
-  - /etc
-- module: system
-  state.period: 12h
-  user.detect_password_changes: true
-  login.wtmp_file_pattern: /var/log/wtmp*
-  login.btmp_file_pattern: /var/log/btmp*
-setup.template.settings:
-  index.number_of_shards: 1
-setup.kibana:
-  host: "https://192.168.38.105:5601"
-  username: vagrant
-  password: vagrant
-  ssl.enabled: true
-  ssl.verification_mode: none
-
-setup.dashboards.enabled: true
-setup.ilm.enabled: false
-
-output.elasticsearch:
-  hosts: ["https://192.168.38.105:9200"]
-  ssl.enabled: true
-  ssl.verification_mode: none
-processors:
-  - add_host_metadata: ~
-  - add_cloud_metadata: ~
-  - add_docker_metadata: ~
-EOF
+	sudo cp /vagrant/resources/ftp/auditbeat.yml /etc/auditbeat/auditbeat.yml
 	mv /etc/auditbeat/audit.rules.d/sample-rules.conf.disabled /etc/auditbeat/audit.rules.d/sample-rules.conf
 	/bin/systemctl enable auditbeat.service
 	/bin/systemctl start auditbeat.service
