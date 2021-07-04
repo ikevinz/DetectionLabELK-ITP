@@ -1,0 +1,42 @@
+auditbeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.period: 10s
+  reload.enabled: true
+auditbeat.max_start_delay: 10s
+
+auditbeat.modules:
+- module: auditd
+  audit_rule_files: [ '${path.config}/audit.rules.d/*.conf' ]
+  audit_rules: |
+- module: file_integrity
+  paths:
+  - /bin
+  - /usr/bin
+  - /sbin
+  - /usr/sbin
+  - /etc
+- module: system
+  state.period: 12h
+  user.detect_password_changes: true
+  login.wtmp_file_pattern: /var/log/wtmp*
+  login.btmp_file_pattern: /var/log/btmp*
+setup.template.settings:
+  index.number_of_shards: 1
+setup.kibana:
+  host: "https://192.168.38.105:5601"
+  username: vagrant
+  password: vagrant
+  ssl.enabled: true
+  ssl.verification_mode: none
+
+setup.dashboards.enabled: true
+setup.ilm.enabled: false
+
+output.elasticsearch:
+  hosts: ["https://192.168.38.105:9200"]
+  ssl.enabled: true
+  ssl.verification_mode: none
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
