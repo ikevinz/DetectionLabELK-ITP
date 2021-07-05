@@ -56,6 +56,12 @@ def target_path_mapping(nonparams)
         # filepaths = []
 
         target_db = JSON.parse(File.read('/etc/logstash/rb/db/targets.json'))
+        
+        # Checks for filepaths and scanned ips
+        target_mappings = nonparams.select {|i| i =~ /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/}
+        filepaths = nonparams.select {|i| i=~ /(\/\S*)/}
+        # i =~ "/^([a-zA-Z]):[\\\/]((?:[^<>:"\\\/\|\?\*]+[\\\/])*)([^<>:"\\\/\|\?\*]+)\.([^<>:"\\\/\|\?\*\s]+)$/gm" or
+
         # Check if known machines are targeted
         # target_db.each do |key, value|
         #     # If matches a host machine
@@ -63,11 +69,6 @@ def target_path_mapping(nonparams)
         #         target_mappings << value 
         #     end
         # end
-
-        # Checks for filepaths and scanned ips
-        target_mappings = nonparams.select {|i| i =~ /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/}
-        filepaths = nonparams.select {|i| i=~ /(\/\S*)/}
-        # i =~ "/^([a-zA-Z]):[\\\/]((?:[^<>:"\\\/\|\?\*]+[\\\/])*)([^<>:"\\\/\|\?\*]+)\.([^<>:"\\\/\|\?\*\s]+)$/gm" or
 
         # If no targets present
         if target_mappings.empty?

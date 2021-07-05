@@ -5,20 +5,20 @@ end
 
 def filter(event)
     # If no message field, pass
-    if event.get(@message).nil?
+    if event.get(@keystrokes).nil?
         return [event]
     end
 
-    split_keystroke = event.get(@keystrokes)
+    split_keystroke = event.get(@keystrokes).split(" ")
 
     mapping, tool = mitre_mapping(split_keystroke)
     target = target identification(split_keystroke)
     
 
     # Adds Events
-    event.set('MITRE_MAPPING', mapping)
-    event.set('POSSIBLE_TOOL', tool)
-    event.set('TARGETED_MACHINE', target)
+    # event.set('MITRE_MAPPING', mapping)
+    # event.set('POSSIBLE_TOOL', tool)
+    # event.set('TARGETED_MACHINE', target)
     return [event]
 end
 

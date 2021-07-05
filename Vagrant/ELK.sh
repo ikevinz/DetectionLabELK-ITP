@@ -122,9 +122,18 @@ xpack.monitoring.collection.interval: 10s
 xpack.monitoring.collection.pipeline.details.enabled: true
 EOF
 
+sudo mkdir /etc/logstash/rb
+sudo mkdir /etc/logstash/rb/db
+
 sudo cp /vagrant/resources/logger/red.conf /etc/logstash/conf.d/red.conf
-sudo cp /vagrant/resources/logger/parse_cmd.rb /etc/logstash/parse_cmd.rb
-sudo cp /vagrant/resources/logger/context_mapping.rb /etc/logstash/context_mapping.rb
+
+sudo cp /vagrant/resources/logger/parse_cmd.rb /etc/logstash/rb/parse_cmd.rb
+sudo cp /vagrant/resources/logger/context_mapping.rb /etc/logstash/rb/context_mapping.rb
+sudo cp /vagrant/resources/logger/keylog_parse.rb /etc/logstash/rb/keylog_parse.rb
+
+sudo cp /vagrant/resources/logger/cmd_hash.json /etc/logstash/rb/db/cmd_hash.json
+sudo cp /vagrant/resources/logger/keylogger_hash.json /etc/logstash/rb/db/keylogger_hash.json
+sudo cp /vagrant/resources/logger/cmd_hash.json /etc/logstash/rb/db/cmd_hash.json
 # sudo touch /etc/logstash/conf.d/zsh.conf
 # cat > /etc/logstash/conf.d/zsh.conf <<EOF
 # input {
