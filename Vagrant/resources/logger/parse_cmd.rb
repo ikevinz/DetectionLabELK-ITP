@@ -1,6 +1,5 @@
 def register(params)
     @command = params["command"]
-    @tools = params["tools"]
 end
 
 def filter(event)
