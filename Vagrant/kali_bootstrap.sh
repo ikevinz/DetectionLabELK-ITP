@@ -38,31 +38,26 @@ install_zeek(){
     echo "[$(date +%H:%M:%S)]: Zeek Installed!"
 }
 
-install_keylog(){
+configure_keylog(){
     echo "[$(date +%H:%M:%S)]: Installing Keylogger..."
-	mkdir /etc/logkeys
-	cd /etc/logkeys
-    apt-get install -y build-essential autotools-dev autoconf kbd
-    git clone https://github.com/kernc/logkeys.git
-    cd logkeys
-    ./autogen.sh
-    cd build
-    ../configure
-    make
-    make install
+	#mkdir /opt/RED_INSTRUMENTATION/keylogger
+    # Keylog log file saved to /opt/RED_INSTRUMENTATION/keylogger/logs/keylog.log
+    # Configure 
     echo "[$(date +%H:%M:%S)]: Keylogger Installed!..."
 }
 
 configure_rsyslog() {
     # Configure rsyslog
-    echo "[$(date +%H:%M:%S)]: Configuring rsyslog for shell command collection..."
+    echo "[$(date +%H:%M:%S)]: Configuring rsyslog for shell command & keylogging collection..."
     
     # Creating rsyslog conf file
     cd /etc/rsyslog.d
     echo "local6.*  /var/log/zsh.log" > zsh.conf
+    echo "local7.*  /var/log/keylog.log" > keylog.conf
     
     # Create the file under /var/log
     sudo touch /var/log/zsh.log
+    sudo touch /var/log/keylog.log
     sudo systemctl restart rsyslog.service
     echo "[$(date +%H:%M:%S)]: Rsyslog configuration complete."
 }
@@ -366,9 +361,11 @@ main() {
     sudo timedatectl set-timezone Asia/Singapore
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
+    # mkdir /opt/RED_INSTRUMENTATION
+    cp -a /RED_INSTRUMENTATION /opt/RED_INSTRUMENTATION
     install_filebeats
 	install_auditbeat
-    install_keylog
+    #install_keylog
     install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
@@ -379,6 +376,7 @@ main() {
     configure_filebeat
     configure_zeek
 	configure_auditbeat
+    configure_keylog
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     
     #Cleanup

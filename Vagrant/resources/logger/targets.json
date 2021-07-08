@@ -1,8 +1,8 @@
 {
-    "kek": "wef",
-    "192.168.38.108": "ftp",
-    "reconnaissance": "dc",
-    "reconnaissance": "win10",
-    "reconnaissance": "web_server",
-    "reconnaissance": ""
+    "192.168.38.103": "wef",
+    "192.168.1.2": "ftp",
+    "192.168.38.102": "dc",
+    "192.168.38.104": "win10",
+    "192.168.1.3": "web_server",
+    "192.168.38.109": "exchange_server"
 }
