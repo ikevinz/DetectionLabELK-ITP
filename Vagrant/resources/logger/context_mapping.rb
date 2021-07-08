@@ -44,6 +44,9 @@ def mitre_mapping(tool)
             mitre_mappings << key 
         end
     end
+    if mitre_mappings.empty?
+        mitre_mappings << "None"
+    end
     return mitre_mappings
 end
 

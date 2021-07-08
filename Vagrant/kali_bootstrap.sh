@@ -53,7 +53,7 @@ configure_rsyslog() {
     # Creating rsyslog conf file
     cd /etc/rsyslog.d
     echo "local6.*  /var/log/zsh.log" > zsh.conf
-    echo "local7.*  /var/log/keylog.log" > keylog.conf
+    echo "local7.*  /var/log/keylog.log" >> zsh.conf
     
     # Create the file under /var/log
     sudo touch /var/log/zsh.log
