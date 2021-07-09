@@ -6,18 +6,20 @@ install_filebeats() {
     # Install Filebeats
     echo "[$(date +%H:%M:%S)]: Installing Filebeats..."
     mkdir /tmp/setup_temp
-    cd /tmp/setup_temp
-    curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.13.0-amd64.deb
-    sudo dpkg -i filebeat-7.13.0-amd64.deb
+    # cd /tmp/setup_temp
+    # curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.13.0-amd64.deb
+    # sudo dpkg -i filebeat-7.13.0-amd64.deb
+    (cd /tmp/setup_temp && curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.13.0-amd64.deb && sudo dpkg -i filebeat-7.13.0-amd64.deb)
     echo "[$(date +%H:%M:%S)]: Filebeats Installed!"
 }
 
 install_auditbeat() {
     # Install Auditbeat
     echo "[$(date +%H:%M:%S)]: Installing Filebeats..."
-    cd /tmp/setup_temp
-    curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.13.1-amd64.deb
-	sudo dpkg -i auditbeat-7.13.1-amd64.deb
+    # cd /tmp/setup_temp
+    # curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.13.1-amd64.deb
+	# sudo dpkg -i auditbeat-7.13.1-amd64.deb
+    (cd /tmp/setup_temp && curl -L -O https://artifacts.elastic.co/downloads/beats/auditbeat/auditbeat-7.13.1-amd64.deb && sudo dpkg -i auditbeat-7.13.1-amd64.deb)
     echo "[$(date +%H:%M:%S)]: Auditbeat Installed!"
 }
 
@@ -28,12 +30,14 @@ install_zeek(){
     sudo apt -y install cmake make gcc g++ flex bison libpcap-dev libssl-dev python3 python3-dev swig zlib1g-dev
     
     #Clone Zeek Repo
-    cd /opt
-    git clone --recursive https://github.com/zeek/zeek
+    # cd /opt
+    # git clone --recursive https://github.com/zeek/zeek
+    (cd /opt && git clone --recursive https://github.com/zeek/zeek)
 
     #Install zeek
-    cd /opt/zeek
-    ./configure && make && sudo make install
+    # cd /opt/zeek
+    # ./configure && make && sudo make install
+    (cd /opt/zeek && ./configure && make && sudo make install)
 
     echo "[$(date +%H:%M:%S)]: Zeek Installed!"
 }
@@ -41,7 +45,7 @@ install_zeek(){
 configure_keylog(){
     echo "[$(date +%H:%M:%S)]: Installing Keylogger..."
 	#mkdir /opt/RED_INSTRUMENTATION/keylogger
-    # Keylog log file saved to /opt/RED_INSTRUMENTATION/keylogger/logs/keylog.log
+    # Keylog log file saved to /opt/RED_INSTRUMENTATION/keylogger/logs/keylogger.log
     # Configure 
 
     echo "[$(date +%H:%M:%S)]: Keylogger Installed!..."
@@ -52,9 +56,10 @@ configure_rsyslog() {
     echo "[$(date +%H:%M:%S)]: Configuring rsyslog for shell command & keylogging collection..."
     
     # Creating rsyslog conf file
-    cd /etc/rsyslog.d
-    echo "local6.*  /var/log/zsh.log" > red.conf
-    echo "local7.*  /var/log/keylog.log" >> red.conf
+    # cd /etc/rsyslog.d
+    # echo "local6.*  /var/log/zsh.log" > red.conf
+    # echo "local7.*  /var/log/keylog.log" >> red.conf
+    (cd /etc/rsyslog.d && echo "local6.*  /var/log/zsh.log" > red.conf && echo "local7.*  /var/log/keylog.log" >> red.conf)
     
     # Create the file under /var/log
     sudo touch /var/log/zsh.log
@@ -220,8 +225,8 @@ configure_zsh() {
     echo "[$(date +%H:%M:%S)]: Configuring ZSH..."
     
     # Modifying the .zshrc file for Kali
-    sed -i '/^setopt hist_verify/a setopt INC_APPEND_HISTORY\t# ZSH Config for Filebeats/ELK\n' /home/vagrant/.zshrc
-    sed -i "/^precmd() {/a    # Logging zsh commands to rsyslog\n    eval "'\x27RETRN_VAL=$?;logger -S 10000 -p local6.debug "{\\"user\\": \\"$(whoami)\\", \\"path\\": \\"$(pwd)\\", \\"pid\\": \\"$$\\", \\"b64_command\\": \\"$(history | tail -n1 | /usr/bin/sed "s/[ 0-9 ]*//" | base64 -w0 )\\", \\"status\\": \\"$RETRN_VAL\\"}"\x27' /home/vagrant/.zshrc
+    sed -i '/^setopt hist_verify/a setopt INC_APPEND_HISTORY\t# ZSH Config for Filebeats/ELK\n' ~/.zshrc
+    sed -i "/^precmd() {/a    # Logging zsh commands to rsyslog\n    eval "'\x27RETRN_VAL=$?;logger -S 10000 -p local6.debug "{\\"user\\": \\"$(whoami)\\", \\"path\\": \\"$(pwd)\\", \\"pid\\": \\"$$\\", \\"b64_command\\": \\"$(history | tail -n1 | /usr/bin/sed "s/[ 0-9 ]*//" | base64 -w0 )\\", \\"status\\": \\"$RETRN_VAL\\"}"\x27' ~/.zshrc
     
     # Modifying root's zshrc
     sed -i '/^setopt hist_verify/a setopt INC_APPEND_HISTORY\t# ZSH Config for Filebeats/ELK\n' /root/.zshrc
@@ -240,7 +245,8 @@ configure_zsh() {
 configure_filebeat() {
     # Configure ELK Forwarding
     echo "[$(date +%H:%M:%S)]: Configuring ELK & FileBeats forwarding..."
-    sudo cp /vagrant/resources/kali/logstash.crt /etc/filebeat/
+    # sudo cp /vagrant/resources/kali/logstash.crt /etc/filebeat/
+    sudo cp ./ELK/logstash.crt /etc/filebeat/
 	sudo chmod 660 /etc/filebeat/logstash.crt
 	
     # Configuring filebeat.yml
@@ -275,19 +281,6 @@ configure_filebeat() {
       fields:
         infralogtype: keylogger
       fields_under_root: true
-
-    - type: log
-      enabled: true
-      paths:
-        - /opt/RED_INSTRUMENTATION/keylogger/logs/keylog.log
-      fields:
-        infralogtype: keylogger
-      fields_under_root: true
-
-    filebeat.config.modules:
-      path: \${path.config}/modules.d/*.yml
-      reload.enabled: true
-      reload.period: 10s
 
     output.logstash:
       hosts: ["192.168.38.105:5045"]
@@ -371,11 +364,11 @@ main() {
     #Installing
     echo "[$(date +%H:%M:%S)]: Setting Up RED Machine..."
     # mkdir /opt/RED_INSTRUMENTATION
-    cp -a /RED_INSTRUMENTATION /opt/RED_INSTRUMENTATION
+    cp -aR ../RED_INSTRUMENTATION /opt/RED_INSTRUMENTATION
     install_filebeats
 	install_auditbeat
     #install_keylog
-    install_zeek
+    #install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
     #Configuring
@@ -395,6 +388,8 @@ main() {
     
     echo "------------  KALI SETUP COMPLETE  ------------"
 }
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "$parent_path"
 
 main
 exit 0

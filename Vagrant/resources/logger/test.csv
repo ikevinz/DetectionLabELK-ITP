@@ -1,0 +1,11 @@
+Jul  9 14:12:13,192.168.38.106,kali,vagrant,/home/vagrant,"nmap -Pn 127.0.0.1
+",0,None,false,nmap,"[""-Pn""]","[""127.0.0.1""]","[""None""]","[""127.0.0.1""]","[""reconnaissance"", ""discovery""]"\r\nJul  9 14:22:26,192.168.38.106,kali,vagrant,/home/vagrant,"sudo cat /var/log/zsh.log
+",0,None,true,cat,[],"[""/var/log/zsh.log""]","[""/var/log/zsh.log""]","[""None""]","[""None""]"
+Jul  9 14:22:24,192.168.38.106,kali,vagrant,/home/vagrant,"nmap -Pn 127.0.0.1
+",0,None,false,nmap,"[""-Pn""]","[""127.0.0.1""]","[""None""]","[""127.0.0.1""]","[""reconnaissance"", ""discovery""]"
+Jul  9 14:25:01,192.168.38.106,kali,vagrant,/home/vagrant,"sudo cat /var/log/zsh.log
+",0,None,true,cat,[],"[""/var/log/zsh.log""]","[""/var/log/zsh.log""]","[""None""]","[""None""]"
+Jul  9 14:25:03,192.168.38.106,kali,vagrant,/home/vagrant,"nmap -Pn 127.0.0.1
+",0,None,false,nmap,"[""-Pn""]","[""127.0.0.1""]","[""None""]","[""127.0.0.1""]","[""reconnaissance"", ""discovery""]"
+Jul  9 14:25:23,192.168.38.106,kali,vagrant,/home/vagrant,"ls /opt
+",0,None,false,ls,[],"[""/opt""]","[""/opt""]","[""None""]","[""None""]"

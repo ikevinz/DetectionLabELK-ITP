@@ -1,0 +1,42 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/zsh.log
+    fields:
+      infralogtype: zsh
+    fields_under_root: true
+
+  - type: log
+    enabled: true
+    paths:
+      - /usr/local/zeek/logs/current/*.log
+    fields:
+      infralogtype: zeek
+    fields_under_root: true
+
+  - type: log
+    enabled: true
+    paths:
+      - /opt/RED_INSTRUMENTATION/keylogger/logs/keylog.log
+    fields:
+      infralogtype: keylogger
+    fields_under_root: true
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: true
+  reload.period: 10s
+
+output.logstash:
+  hosts: ["192.168.38.105:5045"]
+  ssl.certificate_authorities: ["/etc/filebeat/logstash.crt"]
+
+logging:
+  level: info
+  to_files: true
+  to_syslog: false
+  files:
+    path: /var/log/filebeat
+    name: zsh-beat.log
+    keepfiles: 2

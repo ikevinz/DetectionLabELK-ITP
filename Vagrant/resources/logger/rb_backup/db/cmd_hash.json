@@ -1,0 +1,9 @@
+{
+    "reconnaissance": ["nmap", "dig"],
+    "discovery": ["nmap"],
+    "initial access": ["sqlmap"],
+    "execution": [],
+    "persistence": [],
+    "privilege escalation": ["mimikatz"],
+    "command control": []
+}
