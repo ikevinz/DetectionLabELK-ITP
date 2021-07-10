@@ -37,7 +37,7 @@ def setArgs():
 	else:
 		logsFolder = "/opt/RED_INSTRUMENTATION/keylogger/logs/"
 	
-	if isinstance(args.logsFolder, str):
+	if isinstance(args.user, str):
 		currUser = args.user
 
 	print(f"Current User is {currUser}")
@@ -358,6 +358,7 @@ if __name__ == "__main__":
 	# 	else:
 	# 		print("Not a valid input!\n")
 	# currUser = pwd.getpwuid(os.getuid()).pw_name
+	setArgs()
 	base = f'/home/{currUser}'
 	#logging.debug(f"{user}")
 	bashPath = findFile(".bash_history", base)	# for the older kali using bash
@@ -377,7 +378,7 @@ if __name__ == "__main__":
 		startShellLogging = False					
 	print("Starting...")
 
-	setArgs()
+	
 
 	if not os.path.exists(logsFolder):
 		# create the logs folder
