@@ -21,12 +21,12 @@ def filter(event)
     event.set('PARSED_TOOL_PARAMETERS', tool_params)
     event.set('PARSED_TOOL_NON_PARAMETERS', non_param)
 
-    mapping = mitre_mapping(split_keystroke)
-    event.set('MITRE_MAPPING', mapping)
-
     targets, filepaths = target_path_mapping(split_keystroke)
     event.set('TARGETED_MACHINES', targets)
     event.set('TARGETED_FILEPATHS', filepaths)
+
+    mapping = mitre_mapping(split_keystroke)
+    event.set('MITRE_MAPPING', mapping) 
 
     return [event]
 end
@@ -40,10 +40,7 @@ def mitre_mapping(ks)
         mitre_mappings = []
         mitre_db = JSON.parse(File.read('/etc/logstash/rb/db/keylogger_hash.json'))
         mitre_db.each do |key, value|
-            # if value.include? ks
-            #     mitre_mappings << key 
-            # end
-            unless value & ks.empty?
+            if (value & ks).any?
                 mitre_mappings << key
             end
         end
@@ -129,7 +126,7 @@ def tool_check(ks)
     require 'json'
 
     if ks[0].casecmp("sudo") == 0
-        return cmd[1]
+        return ks[1]
     else
         tool_db = JSON.parse(File.read('/etc/logstash/rb/db/tool_array.json'))
         tools = ks.select {|i| tool_db.include? i}
