@@ -17,15 +17,23 @@ def filter(event)
     
     # mapping tool used to MITRE
     tool = event.get(@detected_tool)
-    mapping = mitre_mapping(tool)
-
-    event.set('MITRE_MAPPING', mapping)
+    mi_tools, tactics, techniques, techniquesid = mitre_mapping(tool)
+    event.set('MITRE_SOFTWARE', mi_tools)
+    event.set('MITRE_TECHNIQUES', techniques)
+    event.set('MITRE_TECHNIQUESID', techniquesid)
+    event.set('MITRE_TACTICS', tactics)
     
     # Mapping targets
     targets = []
     filepaths = []
-    unless event.get(@detected_nonparams).nil?
+    unless event.get(@detected_nonparams).empty?
         targets, filepaths = target_path_mapping(event.get(@detected_nonparams))
+    end
+    if targets.empty?
+        targets << "None"
+    end
+    if filepaths.empty?
+        filepaths << "None"
     end
     event.set('TARGETED_MACHINES', targets)
     event.set('TARGETED_FILEPATHS', filepaths)    
@@ -36,18 +44,22 @@ end
 def mitre_mapping(tool)
     require 'json'
 
-    mitre_mappings = []
-    mitre_db = JSON.parse(File.read('/etc/logstash/rb/db/cmd_hash.json'))
-    # @mitre.each do |key, value|
-    mitre_db.each do |key, value|
-        if value.include? tool
-            mitre_mappings << key 
-        end
-    end
-    if mitre_mappings.empty?
-        mitre_mappings << "None"
-    end
-    return mitre_mappings
+    mitre_tools = []
+    mitre_tactics = []
+    mitre_techniques = []
+    mitre_techniquesid = []
+
+    mitre_db = JSON.parse(File.read('/etc/logstash/rb/db/MITRE_SOFTWARE.json'))
+
+    if mitre_db.key?(tool)
+        mitre_tactics |= mitre_db[tool]["tactics"]
+        mitre_techniques |= mitre_db[tool]["techniques"]
+        mitre_techniquesid |= mitre_db[tool]["techniques_id"]
+
+        return mitre_tools, mitre_tactics, mitre_techniques, mitre_techniquesid
+    else
+        return "None", "None", "None", "None"
+    end    
 end
 
 def target_path_mapping(nonparams)

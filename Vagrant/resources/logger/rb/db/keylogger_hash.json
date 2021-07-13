@@ -1,9 +1,12 @@
 {
     "reconnaissance": ["nmap", "dig"],
-    "discovery": ["nmap"],
+    "discovery": ["nmap", "ifconfig", "netstat", "nbtscan", "cmd", "ping"],
     "initial access": ["sqlmap"],
-    "execution": [],
+    "execution": ["cmd", "python3", "python", "bash", "psexec", "xcmd", "msfconsole", "metasploit", "msfvenom"],
     "persistence": [],
     "privilege escalation": ["mimikatz"],
-    "command control": []
+    "command control": ["cmd"],
+    "credential access": ["pwdump"],
+    "defense evasion": ["cmd"],
+    "lateral movement": ["cmd", "psexec"]
 }

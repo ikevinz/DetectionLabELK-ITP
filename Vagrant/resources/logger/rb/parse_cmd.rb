@@ -64,5 +64,11 @@ def param_check(cmd)
             # temp << " #{i}"
         end
     end 
+    if param.empty?
+        param << "None"
+    end
+    if non_param.empty?
+        non_param << "None"
+    end
     return param, non_param
 end

@@ -25,8 +25,11 @@ def filter(event)
     event.set('TARGETED_MACHINES', targets)
     event.set('TARGETED_FILEPATHS', filepaths)
 
-    mapping = mitre_mapping(split_keystroke)
-    event.set('MITRE_MAPPING', mapping) 
+    mi_tools, tactics, techniques, techniquesid = mitre_mapping(split_keystroke)
+    event.set('MITRE_SOFTWARE', mi_tools)
+    event.set('MITRE_TECHNIQUES', techniques)
+    event.set('MITRE_TECHNIQUESID', techniquesid)
+    event.set('MITRE_TACTICS', tactics)
 
     return [event]
 end
@@ -35,19 +38,36 @@ def mitre_mapping(ks)
     require 'json'
 
     if ks.empty?
-        return "None"
+        return "None", "None", "None", "None"
     else
-        mitre_mappings = []
-        mitre_db = JSON.parse(File.read('/etc/logstash/rb/db/keylogger_hash.json'))
-        mitre_db.each do |key, value|
-            if (value & ks).any?
-                mitre_mappings << key
+        mitre_tools = []
+        mitre_tactics = []
+        mitre_techniques = []
+        mitre_techniquesid = []
+
+        mitre_db = JSON.parse(File.read('/etc/logstash/rb/db/MITRE_SOFTWARE.json'))
+        # mitre_db.each do |key, value|
+        # If Present in MITRE SOFTWARE list
+        mitre_tools |= (mitre_db.keys & ks.map(&:downcase))
+        if mitre_tools.any?
+            # Means there are words in the keystroke that match the mitre software
+            mitre_tools.each do |tool|
+                mitre_db[tool].each do |key, value|
+                    if key.casecmp?("tactics")
+                        mitre_tactics |= value
+                    elsif key.casecmp?("techniques")
+                        mitre_techniques |= value
+                    else
+                        mitre_techniquesid |= value
+                    end                   
+                end
             end
+        else
+            # If NOT Present in MITRE software list, mark as none.
+            return "None", "None", "None", "None"
         end
-        if mitre_mappings.empty?
-            mitre_mappings << "None"
-        end
-        return mitre_mappings
+
+        return mitre_tools, mitre_tactics, mitre_techniques, mitre_techniquesid
     end
 end
 

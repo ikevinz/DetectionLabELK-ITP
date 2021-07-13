@@ -273,7 +273,15 @@ configure_filebeat() {
       fields:
         infralogtype: zsh
       fields_under_root: true
-      
+    
+    - type: log
+      enabled: true
+      paths:
+        - /usr/local/zeek/logs/current/*.log
+      fields:
+        infralogtype: zeek
+      fields_under_root: true
+    
     - type: log
       enabled: true
       paths:
@@ -367,7 +375,6 @@ main() {
     cp -aR ../RED_INSTRUMENTATION /opt/RED_INSTRUMENTATION
     install_filebeats
 	install_auditbeat
-    #install_keylog
     #install_zeek
     echo "[$(date +%H:%M:%S)]: Installation Complete."
     
@@ -378,7 +385,7 @@ main() {
     configure_filebeat
     configure_zeek
 	configure_auditbeat
-    configure_keylog
+    #configure_keylog
     echo "[$(date +%H:%M:%S)]: Configuration complete."
     
     #Cleanup
