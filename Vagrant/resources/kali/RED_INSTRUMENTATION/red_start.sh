@@ -6,13 +6,9 @@ main() {
     # Get current user
     myvariable=$USER
 
-    # Schedule auto 
-    # logger -f /opt/RED_INSTRUMENTATION/keylogger/logs/keylogger.log -S 100000 -p local7.debug
-
     # Start Keylogger
-    # sudo python3 /opt/RED_INSTRUMENTATION/keylogger/keylogger.py --user $myvariable
-    sudo python3 /vagrant/resources/kali/RED_INSTRUMENTATION/keylogger/keylogger.py --user $myvariable
-    # wait
+    sudo python3 /opt/RED_INSTRUMENTATION/keylogger/keylogger.py --user $myvariable
+    # sudo python3 /vagrant/resources/kali/RED_INSTRUMENTATION/keylogger/keylogger.py --user $myvariable
 }
 
 parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )

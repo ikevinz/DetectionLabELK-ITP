@@ -1,0 +1,134 @@
+{
+    "nmap": {
+        "tactics": [
+            "reconnaissance",
+            "discovery"
+        ],
+        "techniques": [
+            "Gather Victim Network Information: Network Security Appliances",
+            "Network Service Scanning"
+        ],
+        "techniques_id": [
+            "T1590.006",
+            "T1046"
+        ]
+    },
+    "ffuf": {
+        "tactics": [
+            "discovery"
+        ],
+        "techniques": [
+            "File and Directory Discovery"
+        ],
+        "techniques_id": [
+            "T1083"
+        ]
+    },
+    "ssh": {
+        "tactics": [
+            "persistence",
+            "initial-access",
+            "lateral-movement"
+        ],
+        "techniques": [
+            "External Remote Services",
+            "Remote Services: SSH"
+        ],
+        "techniques_id": [
+            "T1133",
+            "T1021.004"
+        ]
+    },
+    "proxychains": {
+        "tactics": [
+            "command-and-control"
+        ],
+        "techniques": [
+            "Proxy: Internal Proxy"
+        ],
+        "techniques_id": [
+            "T1090.001"
+        ]
+    },
+    "secretsdump.py": {
+        "tactics": [
+            "credential-access"
+        ],
+        "techniques": [
+            "OS Credential Dumping: LSA Secrets "
+        ],
+        "techniques_id": [
+            "T1003.004 "
+        ]
+    },
+    "sudoers": {
+        "tactics": [
+            "defense-evasion",
+            "privilege-escalation"
+        ],
+        "techniques": [
+            "Abuse Elevation Control Mechanism: Sudo and Sudo Caching"
+        ],
+        "techniques_id": [
+            "T1548.003"
+        ]
+    },
+    "nc": {
+        "tactics": [
+            "execution"
+        ],
+        "techniques": [
+            "Command and Scripting Interpreter"
+        ],
+        "techniques_id": [
+            "T1059"
+        ]
+    },
+    "python3": {
+        "tactics": [
+            "execution"
+        ],
+        "techniques": [
+            "Command and Scripting Interpreter: Python"
+        ],
+        "techniques_id": [
+            "T1059.006"
+        ]
+    },
+    "passwd": {
+        "tactics": [
+            "persistence"
+        ],
+        "techniques": [
+            "Account Manipulation"
+        ],
+        "techniques_id": [
+            "T1098"
+        ]
+    },
+    "usermod": {
+        "tactics": [
+            "defense-evasion",
+            "execution"
+        ],
+        "techniques": [
+            "Modify Registry",
+            "Scheduled Task/Job: Scheduled Task"
+        ],
+        "techniques_id": [
+            "T1112",
+            "T1053.005"
+        ]
+    },
+    "adduser": {
+        "tactics": [
+            "persistence"
+        ],
+        "techniques": [
+            "Create Account: Local Account"
+        ],
+        "techniques_id": [
+            "T1136.001"
+        ]
+    }
+}
