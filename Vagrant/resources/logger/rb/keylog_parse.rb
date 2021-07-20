@@ -14,8 +14,9 @@ def filter(event)
     priv = is_sudo(split_keystroke)
     event.set('IS_SUDO', priv)
 
-    tools = tool_check(split_keystroke)
-    event.set('PARSED_TOOL', tools)
+    # tools = tool_check(split_keystroke)
+    # event.set('PARSED_TOOL', tools)
+    event.set('PARSED_TOOL', "None")
 
     tool_params, non_param = param_check(split_keystroke)
     event.set('PARSED_TOOL_PARAMETERS', tool_params)
@@ -49,6 +50,7 @@ def mitre_mapping(ks)
         # mitre_db.each do |key, value|
         # If Present in MITRE SOFTWARE list
         mitre_tools |= (mitre_db.keys & ks.map(&:downcase))
+
         if mitre_tools.any?
             # Means there are words in the keystroke that match the mitre software
             mitre_tools.each do |tool|

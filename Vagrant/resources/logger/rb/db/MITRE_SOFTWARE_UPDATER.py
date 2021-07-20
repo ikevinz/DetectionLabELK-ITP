@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, sys, getopt, re, argparse
 from stix2 import MemoryStore, Filter
 from itertools import chain
 
@@ -15,7 +15,32 @@ def get_software(thesrc):
         ]
     ))
 
+def add_custom():
+    new_dict = {}
+    print("Adding custom mappings that already exist in MITRE Software will overwite the existing delcared mapping. Proceed with caution.")
+
+    while True:
+        mtool = input("Enter MITRE Tool/Malware Name:   ").lower()
+        mtactic = input("Enter MITRE Tool/Malware Tactics (Comma Separated):   ")
+        mtech = input("Enter MITRE Tool/Malware Techniques (Comma Separated):   ")
+        mtechid = input("Enter MITRE Tool/Malware Technique ID (Comma Separated):   ").upper()
+        
+        new_dict[mtool] = {"tactics": re.split(', |,', mtactic), "techniques": re.split(', |,', mtech), "techniques_id": re.split(', |,', mtechid)}
+
+        exitstatus = input("Would you like to exit? y/n   ").lower()
+        if exitstatus == "y":
+            break
+        else:
+            continue
+
+    return new_dict
+
 def main():
+    parser = argparse.ArgumentParser(description="Pulls MITRE Software Mapping and updates ELK Logstash Database.")
+    parser.add_argument("-c", "--custom", help = "Declare custom MITRE Mapping", action="store_true")
+    parser.add_argument("-a", "--append", help = "Appends custom MITRE Mapping", type=str)
+    args = parser.parse_args()
+
     src = get_data_from_branch("enterprise-attack")
 
     software = get_software(src)
@@ -60,6 +85,18 @@ def main():
         #save to dict
         tmp = {"tactics": list(dict.fromkeys(tactics)), "techniques": techniques, "techniques_id": techniques_id}
         end_dict[name] = tmp
+
+    if (args.custom):
+        custom_dict = add_custom()
+        end_dict = {**end_dict, **custom_dict}
+    
+    if (args.append):
+        try:
+            f = open(args.append)
+            data = json.load(f)
+            end_dict = {**end_dict, **data}
+        except:
+            print("Unable to load custom JSON. Please ensure that the file exists or is of the correct format.")
 
     print("Relation Mapping Complete!")
     print("Extracting to MITRE_SOFTWARE.json...")

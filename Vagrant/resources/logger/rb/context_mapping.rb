@@ -52,6 +52,7 @@ def mitre_mapping(tool)
     mitre_db = JSON.parse(File.read('/etc/logstash/rb/db/MITRE_SOFTWARE.json'))
 
     if mitre_db.key?(tool)
+        mitre_tools |= tool
         mitre_tactics |= mitre_db[tool]["tactics"]
         mitre_techniques |= mitre_db[tool]["techniques"]
         mitre_techniquesid |= mitre_db[tool]["techniques_id"]
