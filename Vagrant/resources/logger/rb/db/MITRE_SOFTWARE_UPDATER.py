@@ -68,7 +68,10 @@ def main():
 
             # Adding Tactic to list
             if hasattr(ttp_mapping, 'kill_chain_phases'):
-                tactics.append(ttp_mapping.kill_chain_phases[0].phase_name)
+                # tactics.append(ttp_mapping.kill_chain_phases[0].phase_name)
+                for i in range(0, len(ttp_mapping.kill_chain_phases)):
+                    if ttp_mapping.kill_chain_phases[i].phase_name not in tactics:
+                        tactics.append(ttp_mapping.kill_chain_phases[i].phase_name)
 
             # If subtechnique, append the parent technique to the name
             if hasattr(ttp_mapping, 'x_mitre_is_subtechnique') and ttp_mapping.x_mitre_is_subtechnique is True:
@@ -92,9 +95,11 @@ def main():
     
     if (args.append):
         try:
+            print("Appending defined JSON Mapping...")
             f = open(args.append)
             data = json.load(f)
             end_dict = {**end_dict, **data}
+            print("Appended JSON Mapping!")
         except:
             print("Unable to load custom JSON. Please ensure that the file exists or is of the correct format.")
 

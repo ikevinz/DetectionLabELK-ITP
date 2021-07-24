@@ -2,6 +2,8 @@
 
 # This is the script that is used to provision the kali host
 
+ELKIP="192.168.50.200"
+
 install_filebeats() {
     # Install Filebeats
     echo "[$(date +%H:%M:%S)]: Installing Filebeats..."
@@ -341,8 +343,8 @@ configure_filebeat() {
     #sudo sed 's/#output.logstash/output.logstash/g' filebeat.yml
     
     # Configure ELK host (CLS) on port 5044
-    #sudo sed -i 's/.*hosts: ["localhost:9200"]/  #hosts: [\"192.168.38.105:9200\"]/' filebeat.yml
-    #sudo sed 's/#hosts: ["localhost:5044"].*/hosts: [\"192.168.38.105:5044\"]/g' filebeat.yml
+    #sudo sed -i 's/.*hosts: ["localhost:9200"]/  #hosts: [\"192.168.50.200:9200\"]/' filebeat.yml
+    #sudo sed 's/#hosts: ["localhost:5044"].*/hosts: [\"192.168.50.200:5044\"]/g' filebeat.yml
     
     # Configuring filebeat.yml
     cat >/etc/filebeat/filebeat.yml <<EOF
@@ -372,7 +374,7 @@ configure_filebeat() {
       fields_under_root: true
 
     output.logstash:
-      hosts: ["192.168.38.105:5045"]
+      hosts: ["$(echo $ELKIP):5045"]
       ssl.certificate_authorities: ["/etc/filebeat/logstash.crt"]
 
     logging:
@@ -419,7 +421,7 @@ auditbeat.modules:
 setup.template.settings:
   index.number_of_shards: 1
 setup.kibana:
-  host: "https://192.168.38.105:5601"
+  host: "https://$(echo $ELKIP):5601"
   username: vagrant
   password: vagrant
   ssl.enabled: true
@@ -429,7 +431,7 @@ setup.dashboards.enabled: true
 setup.ilm.enabled: false
 
 output.elasticsearch:
-  hosts: ["https://192.168.38.105:9200"]
+  hosts: ["https://$(echo $ELKIP):9200"]
   ssl.enabled: true
   ssl.verification_mode: none
 processors:
